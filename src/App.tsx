@@ -7,6 +7,7 @@ import Header from './components/Header'
 import SearchSection from './components/SearchSection'
 import CanteenCard from './components/CanteenCard'
 import BottomNav from './components/BottomNav'
+import CanteenDetail from './components/CanteenDetail'
 
 // Import Types
 import { Canteen } from './types'
@@ -17,6 +18,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [displayCanteens, setDisplayCanteens] = useState<Canteen[]>([])
   const [selectedTime, setSelectedTime] = useState<string>('12:00')
+  const [selectedCanteen, setSelectedCanteen] = useState<Canteen | null>(null)
 
   const allCanteens: Canteen[] = [
     { id: 1, name: 'โรงอาหารA', hours: '07:00 - 18:00', distance: '350m', density: 'โล่ง', statusClass: 'status-low', open: true },
@@ -44,6 +46,17 @@ const App: React.FC = () => {
 
   const resetCanteens = (): void => setDisplayCanteens(allCanteens)
 
+  if (selectedCanteen) {
+    return (
+      <div className="app-container" style={{ paddingBottom: '20px' }}>
+        <CanteenDetail 
+          canteen={selectedCanteen} 
+          onBack={() => setSelectedCanteen(null)} 
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="app-container">
       <Header resetCanteens={resetCanteens} />
@@ -65,7 +78,11 @@ const App: React.FC = () => {
           </div>
           <div className="canteen-list animate-in">
             {displayCanteens.map(canteen => (
-              <CanteenCard key={canteen.id} canteen={canteen} />
+              <CanteenCard 
+                key={canteen.id} 
+                canteen={canteen} 
+                onClick={setSelectedCanteen}
+              />
             ))}
           </div>
         </section>
