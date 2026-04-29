@@ -4,13 +4,14 @@ import { Canteen } from '../types'
 
 interface CanteenCardProps {
   canteen: Canteen;
+  onClick: (canteen: Canteen) => void;
 }
 
-const CanteenCard: React.FC<CanteenCardProps> = ({ canteen }) => {
+const CanteenCard: React.FC<CanteenCardProps> = ({ canteen, onClick }) => {
   return (
-    <div 
+    <div
       className="canteen-card"
-      onClick={() => alert(`คุณกำลังเลือก: ${canteen.name}`)}
+      onClick={() => onClick(canteen)}
     >
       <div className="canteen-info">
         <span className="canteen-name">{canteen.name}</span>
