@@ -24,10 +24,10 @@ const App: React.FC = () => {
   const [selectedCanteen, setSelectedCanteen] = useState<Canteen | null>(null)
   
   const mockCanteens: Canteen[] = [
-    { id: 1, name: 'โรงอาหารทิวสน', hours: '07:00 - 18:00', distance: '350m', density: 'โล่ง', statusClass: 'status-low', open: true, lat: 14.07626, lng: 100.59545 },
-    { id: 2, name: 'โรงอาหาร SC', hours: '08:00 - 19:00', distance: '200m', density: 'ปานกลาง', statusClass: 'status-med', open: true, lat: 14.06964, lng: 100.60455 },
-    { id: 3, name: 'โรงอาหาร JC', hours: '06:00 - 19:00', distance: '480m', density: 'ปานกลาง', statusClass: 'status-med', open: true, lat: 14.06924, lng: 100.60477 },
-    { id: 4, name: 'กรีนแคนทีน', hours: '07:00 - 14:00', distance: '600m', density: 'หนาแน่น', statusClass: 'status-high', open: false, lat: 14.07335, lng: 100.60114 }
+    { id: 1, name: 'โรงอาหารทิวสน', hours: '07:00 - 18:00', distance: '350m', density: 'โล่ง', statusClass: 'status-low', open: true, lat: 14.07626, lng: 100.59545, image: '/images/thewson.jpg' },
+    { id: 2, name: 'โรงอาหาร SC', hours: '08:00 - 19:00', distance: '200m', density: 'ปานกลาง', statusClass: 'status-med', open: true, lat: 14.06964, lng: 100.60455, image: '/images/sc.jpg' },
+    { id: 3, name: 'โรงอาหาร JC', hours: '06:00 - 19:00', distance: '480m', density: 'ปานกลาง', statusClass: 'status-med', open: true, lat: 14.06924, lng: 100.60477, image: '/images/jc.jpg' },
+    { id: 4, name: 'กรีนแคนทีน', hours: '07:00 - 14:00', distance: '600m', density: 'หนาแน่น', statusClass: 'status-high', open: false, lat: 14.07335, lng: 100.60114, image: '/images/green.jpg' }
   ]
   const [displayCanteens, setDisplayCanteens] = useState<Canteen[]>(mockCanteens)
   const [mapCanteens, setMapCanteens] = useState<Canteen[]>([])
@@ -108,6 +108,16 @@ const App: React.FC = () => {
         const response = await fetch(`${baseUrl}/canteens/all`)
         const data = await response.json()
         
+        const getImageForCanteen = (id: number) => {
+          switch(id) {
+            case 1: return '/images/thewson.jpg';
+            case 2: return '/images/sc.jpg';
+            case 3: return '/images/jc.jpg';
+            case 4: return '/images/green.jpg';
+            default: return undefined;
+          }
+        };
+
         const mappedData: Canteen[] = data.map((item: any) => ({
           id: item.canteen_id,
           name: item.name,
@@ -119,7 +129,8 @@ const App: React.FC = () => {
           lat: item.latitude,
           lng: item.longitude,
           capacity: item.seat_count.toString(),
-          locationDesc: item.location
+          locationDesc: item.location,
+          image: getImageForCanteen(item.canteen_id)
         }))
         
         setMapCanteens(mappedData)
