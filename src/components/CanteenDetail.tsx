@@ -5,9 +5,10 @@ import { Canteen } from '../types'
 interface CanteenDetailProps {
   canteen: Canteen;
   onBack: () => void;
+  onNavigate: (canteen: Canteen) => void;
 }
 
-const CanteenDetail: React.FC<CanteenDetailProps> = ({ canteen, onBack }) => {
+const CanteenDetail: React.FC<CanteenDetailProps> = ({ canteen, onBack, onNavigate }) => {
   return (
     <div className="canteen-detail-container animate-in">
       <div className="detail-header">
@@ -52,9 +53,9 @@ const CanteenDetail: React.FC<CanteenDetailProps> = ({ canteen, onBack }) => {
           </div>
         </div>
 
-        <button className="navigate-button">
+        <button className="navigate-button" onClick={() => onNavigate(canteen)}>
           <FaMapMarkedAlt size={18} />
-          นำทางไปที่นี่ (Google Maps)
+          นำทางไปที่นี่ (In-App)
         </button>
       </div>
     </div>

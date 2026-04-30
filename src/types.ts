@@ -9,4 +9,6 @@ export interface Canteen {
   locationDesc?: string;
   capacity?: string;
   image?: string;
+  lat?: number;
+  lng?: number;
 }
