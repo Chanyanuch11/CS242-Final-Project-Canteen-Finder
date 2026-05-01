@@ -22,6 +22,18 @@ const userLocationIcon = L.divIcon({
   iconAnchor: [10, 10]
 });
 
+const canteenIcon = L.divIcon({
+  className: 'canteen-marker',
+  html: `
+    <svg width="30" height="42" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0ZM15 20.25C12.1005 20.25 9.75 17.8995 9.75 15C9.75 12.1005 12.1005 9.75 15 9.75C17.8995 9.75 20.25 12.1005 20.25 15C20.25 17.8995 17.8995 20.25 15 20.25Z" fill="#f06292"/>
+      <path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0ZM15 20.25C12.1005 20.25 9.75 17.8995 9.75 15C9.75 12.1005 12.1005 9.75 15 9.75C17.8995 9.75 20.25 12.1005 20.25 15C20.25 17.8995 17.8995 20.25 15 20.25Z" stroke="white" stroke-width="2"/>
+    </svg>
+  `,
+  iconSize: [30, 42],
+  iconAnchor: [15, 42] // Anchor exactly at the bottom tip
+});
+
 declare const google: any;
 
 // Decode Google's encoded polyline format
@@ -59,47 +71,62 @@ const getOSRMInstruction = (step: any) => {
   return `เดินต่อไป ${name}`;
 };
 
-// Call OSRM API (OpenStreetMap)
-const fetchOSRMRoute = async (
+// Call Google Directions Service (Walking mode)
+const fetchGoogleRoute = (
   origin: [number, number],
   dest: [number, number]
 ): Promise<{ polylinePoints: [number, number][], steps: { instruction: string, distance: string, distanceMeters: number, durationSeconds: number }[], totalDistance: string, totalDuration: string, totalMeters: number, totalSeconds: number } | null> => {
-  try {
-    const url = `https://router.project-osrm.org/route/v1/foot/${origin[1]},${origin[0]};${dest[1]},${dest[0]}?overview=full&geometries=geojson&steps=true`;
-    const res = await fetch(url);
-    const data = await res.json();
-    
-    if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
-      console.warn('[OSRM API] no routes:', data);
-      return null;
+  return new Promise((resolve) => {
+    if (typeof google === 'undefined' || !google.maps || !google.maps.DirectionsService) {
+      console.error('Google Maps SDK not loaded correctly');
+      return resolve(null);
     }
-    
-    const route = data.routes[0];
-    const polylinePoints = route.geometry.coordinates.map((coord: [number, number]) => [coord[1], coord[0]]);
-    const leg = route.legs[0];
-    
-    const totalMeters = route.distance;
-    const totalSeconds = route.duration;
-    
-    const totalDistance = totalMeters < 1000 ? `${Math.round(totalMeters)} ม.` : `${(totalMeters / 1000).toFixed(1)} กม.`;
-    const totalDuration = totalSeconds < 60 ? `${Math.round(totalSeconds)} วินาที` : `${Math.round(totalSeconds / 60)} นาที`;
-    
-    const steps = (leg?.steps || []).map((s: any) => ({
-      instruction: getOSRMInstruction(s),
-      distance: s.distance < 1000 ? `${Math.round(s.distance)} ม.` : `${(s.distance / 1000).toFixed(1)} กม.`,
-      distanceMeters: s.distance || 0,
-      durationSeconds: s.duration || 0,
-    }));
 
-    return { polylinePoints, steps, totalDistance, totalDuration, totalMeters, totalSeconds };
-  } catch (err) {
-    console.error('[OSRM error]', err);
-    return null;
-  }
+    const directionsService = new google.maps.DirectionsService();
+    directionsService.route(
+      {
+        origin: new google.maps.LatLng(origin[0], origin[1]),
+        destination: new google.maps.LatLng(dest[0], dest[1]),
+        travelMode: google.maps.TravelMode.WALKING,
+        language: 'th'
+      },
+      (result: any, status: any) => {
+        if (status === 'OK' && result.routes.length > 0) {
+          const route = result.routes[0];
+          const leg = route.legs[0];
+          
+          // Decode polyline points
+          const polylinePoints = route.overview_path.map((p: any) => [p.lat(), p.lng()]);
+          
+          const steps = leg.steps.map((s: any) => ({
+            instruction: s.instructions
+              .replace(/<[^>]*>?/gm, '') // Clear HTML tags
+              .replace(/ขับ/g, 'เดิน'),    // Replace "Drive" with "Walk"
+            distance: s.distance.text,
+            distanceMeters: s.distance.value,
+            durationSeconds: s.duration.value,
+            maneuver: s.maneuver || ''
+          }));
+
+          resolve({
+            polylinePoints,
+            steps,
+            totalDistance: leg.distance.text,
+            totalDuration: leg.duration.text,
+            totalMeters: leg.distance.value,
+            totalSeconds: leg.duration.value
+          });
+        } else {
+          console.error('Google Directions failed:', status);
+          resolve(null);
+        }
+      }
+    );
+  });
 };
 
 
-// Google Routes Component
+// Navigation Route Component
 const GoogleDirectionsRoute = ({ userLoc, destLoc, onRouteReady }: {
   userLoc: [number, number],
   destLoc: [number, number],
@@ -125,7 +152,7 @@ const GoogleDirectionsRoute = ({ userLoc, destLoc, onRouteReady }: {
       map.fitBounds(polylineRef.current.getBounds(), { padding: [60, 60] });
     };
 
-    fetchOSRMRoute(userLoc, destLoc).then((result) => {
+    fetchGoogleRoute(userLoc, destLoc).then((result) => {
       if (!result) { drawFallbackLine(); return; }
 
       if (polylineRef.current) map.removeLayer(polylineRef.current);
@@ -198,7 +225,7 @@ const MapView: React.FC<MapViewProps> = ({ canteens, onSelectCanteen, userLocati
 
         {canteens.map((canteen) => (
           canteen.lat && canteen.lng && (
-            <Marker key={canteen.id} position={[canteen.lat, canteen.lng]}>
+            <Marker key={canteen.id} position={[canteen.lat, canteen.lng]} icon={canteenIcon}>
               <Popup>
                 <div style={{ padding: '5px' }}>
                   <h3 style={{ margin: '0 0 5px 0', fontSize: '16px' }}>{canteen.name}</h3>

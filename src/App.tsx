@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { FaMapMarkedAlt, FaMapMarkerAlt, FaUtensils, FaSearch, FaArrowUp, FaFlagCheckered } from 'react-icons/fa'
+import { FaMapMarkedAlt, FaMapMarkerAlt, FaUtensils, FaSearch, FaArrowUp, FaArrowLeft, FaArrowRight, FaFlagCheckered, FaMagic, FaClock, FaWalking, FaChevronRight, FaChevronLeft } from 'react-icons/fa'
 import './index.css'
 
 // Import Components
@@ -29,11 +29,13 @@ const App: React.FC = () => {
     { id: 3, name: 'โรงอาหาร JC', hours: '06:00 - 19:00', distance: '480m', density: 'ปานกลาง', statusClass: 'status-med', open: true, lat: 14.06924, lng: 100.60477, image: '/images/jc.jpg' },
     { id: 4, name: 'กรีนแคนทีน', hours: '07:00 - 14:00', distance: '600m', density: 'หนาแน่น', statusClass: 'status-high', open: false, lat: 14.07335, lng: 100.60114, image: '/images/green.jpg' }
   ]
-  const [displayCanteens, setDisplayCanteens] = useState<Canteen[]>(mockCanteens)
+  const [displayCanteens, setDisplayCanteens] = useState<Canteen[]>([])
   const [mapCanteens, setMapCanteens] = useState<Canteen[]>([])
   const [destination, setDestination] = useState<Canteen | null>(null)
   const [hasSearched, setHasSearched] = useState<boolean>(false)
   const [toastMessage, setToastMessage] = useState<string>('')
+  const [aiSummary, setAiSummary] = useState<string | null>(null)
+  const [aiModel, setAiModel] = useState<string>('')
   const [routeInfo, setRouteInfo] = useState<{ 
     steps: {instruction: string, distance: string, distanceMeters: number, durationSeconds: number}[], 
     totalDistance: string, 
@@ -57,7 +59,7 @@ const App: React.FC = () => {
   const isCanteenOpen = (hours: string, checkTime?: string): boolean => {
     try {
       // Handle Thai format like "8.30 - 19.00 น." or "07:00-19:00"
-      const cleanHours = hours.replace(' น.', '').replace(/\./g, ':');
+      const cleanHours = hours.replace(/\s*น\.?/g, '').replace(/\./g, ':');
       const parts = cleanHours.split(/[-–]/).map(p => p.trim());
       if (parts.length !== 2) return true;
 
@@ -85,7 +87,7 @@ const App: React.FC = () => {
   };
 
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): string => {
-    const R = 6371; // Radius of the earth in km
+    const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a = 
@@ -93,12 +95,37 @@ const App: React.FC = () => {
       Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const d = R * c; // Distance in km
-    
-    if (d < 1) {
-      return `${Math.round(d * 1000)}m`;
-    }
+    const d = R * c;
+    if (d < 1) return `${Math.round(d * 1000)}m`;
     return `${d.toFixed(1)}km`;
+  };
+
+  // Fetch walking distance from Google SDK
+  const fetchWalkingDistance = (originLat: number, originLng: number, destLat: number, destLng: number): Promise<string> => {
+    return new Promise((resolve) => {
+      if (typeof google === 'undefined') {
+        resolve(calculateDistance(originLat, originLng, destLat, destLng));
+        return;
+      }
+
+      const service = new google.maps.DistanceMatrixService();
+      service.getDistanceMatrix(
+        {
+          origins: [new google.maps.LatLng(originLat, originLng)],
+          destinations: [new google.maps.LatLng(destLat, destLng)],
+          travelMode: google.maps.TravelMode.WALKING,
+        },
+        (response, status) => {
+          if (status === 'OK' && response && response.rows[0].elements[0].status === 'OK') {
+            const element = response.rows[0].elements[0];
+            const meters = element.distance.value;
+            resolve(meters < 1000 ? `${meters}m` : `${(meters / 1000).toFixed(1)}km`);
+          } else {
+            resolve(calculateDistance(originLat, originLng, destLat, destLng));
+          }
+        }
+      );
+    });
   };
 
   useEffect(() => {
@@ -118,23 +145,32 @@ const App: React.FC = () => {
           }
         };
 
+        // First pass: use Haversine as placeholder
         const mappedData: Canteen[] = data.map((item: any) => ({
           id: item.canteen_id,
-          name: item.name,
+          name: item._name || item.name,
           hours: item.opening_hours,
-          distance: userLocation ? calculateDistance(userLocation.lat, userLocation.lng, item.latitude, item.longitude) : '---',
-          density: item.seat_count > 300 ? 'หนาแน่น' : 'ปานกลาง',
-          statusClass: item.seat_count > 300 ? 'status-high' : 'status-med',
+          distance: userLocation ? calculateDistance(userLocation.lat, userLocation.lng, item._latitude || item.latitude, item._longitude || item.longitude) : '---',
+          density: (item._seat_count || item.seat_count) > 300 ? 'หนาแน่น' : 'ปานกลาง',
+          statusClass: (item._seat_count || item.seat_count) > 300 ? 'status-high' : 'status-med',
           open: isCanteenOpen(item.opening_hours),
-          lat: item.latitude,
-          lng: item.longitude,
-          capacity: item.seat_count.toString(),
-          locationDesc: item.location,
+          lat: item._latitude || item.latitude,
+          lng: item._longitude || item.longitude,
+          capacity: (item._seat_count || item.seat_count)?.toString(),
+          locationDesc: item._location || item.location,
           image: getImageForCanteen(item.canteen_id)
         }))
         
         setMapCanteens(mappedData)
-        setDisplayCanteens(mappedData.filter(c => c.open))
+
+        // Second pass: fetch real walking distances from Google
+        if (userLocation) {
+          const updated = await Promise.all(mappedData.map(async (c) => {
+            const walkDist = await fetchWalkingDistance(userLocation.lat, userLocation.lng, c.lat, c.lng);
+            return { ...c, distance: walkDist };
+          }));
+          setMapCanteens(updated);
+        }
       } catch (error) {
         console.error('Failed to fetch map canteens:', error)
       }
@@ -166,12 +202,12 @@ const App: React.FC = () => {
     )
   }
 
-  const handleNavigate = (canteen: Canteen) => {
-    setDestination(canteen)
-    setNavStepIndex(0) // Reset step
-    setActiveNav('map')
-    setSelectedCanteen(null) // Close detail view
-  }
+  const handleNavigate = (canteen: Canteen): void => {
+    setDestination(canteen);
+    setNavStepIndex(0); // Reset to first step
+    setActiveNav('map'); // Switch to map tab
+    setSelectedCanteen(null); // Close detail view
+  };
 
   const handleSearch = (): void => {
     if (!userLocation) {
@@ -180,11 +216,105 @@ const App: React.FC = () => {
     }
     setIsLoading(true)
     setHasSearched(true)
-    setTimeout(() => {
-      const checkTime = activeTab === 'range' ? startTime : undefined;
-      const filtered = mapCanteens.filter(c => isCanteenOpen(c.hours, checkTime));
-      setDisplayCanteens(filtered);
-      setIsLoading(false)
+    setAiSummary(null) // Reset summary
+
+    setTimeout(async () => {
+      try {
+        const checkTime = activeTab === 'range' ? startTime : undefined;
+        
+        // 1. Filter locally for display
+        const filtered = mapCanteens.filter(c => isCanteenOpen(c.hours, checkTime));
+        setDisplayCanteens(filtered);
+
+        // 2. Only call AI if there are open canteens
+        if (userLocation && filtered.length > 0) {
+          const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+          const today = new Date().toISOString().split('T')[0];
+          
+          // Use actual current time for 'current' tab, or user-selected time for 'range' tab
+          let queryStart: string, queryEnd: string;
+          if (activeTab === 'current') {
+            const now = new Date();
+            const currentHour = now.getHours().toString().padStart(2, '0');
+            const currentMin = now.getMinutes().toString().padStart(2, '0');
+            const nextHour = ((now.getHours() + 1) % 24).toString().padStart(2, '0');
+            queryStart = `${today} ${currentHour}:${currentMin}`;
+            queryEnd = `${today} ${nextHour}:${currentMin}`;
+          } else {
+            queryStart = `${today} ${startTime}`;
+            // Set end time to 1 hour after start time to get a good sample for that point in time
+            const [h, m] = startTime.split(':').map(Number);
+            const endH = (h + 1) % 24;
+            queryEnd = `${today} ${endH.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+          }
+          
+          const recommendUrl = `${baseUrl}/canteens/recommend?lat=${userLocation.lat}&lng=${userLocation.lng}&start_time=${queryStart}&end_time=${queryEnd}`;
+          const response = await fetch(recommendUrl);
+          const data = await response.json();
+          
+          if (data.results && data.results.length > 0) {
+            // 1. Merge backend data first
+            const ranked = filtered.map(c => {
+              const aiMatch = data.results.find((r: any) => r.canteen_id === c.id);
+              if (aiMatch) {
+                const statusMap: Record<string, string> = { 'น้อย': 'status-low', 'ปานกลาง': 'status-med', 'หนาแน่น': 'status-high' };
+                return { 
+                  ...c, 
+                  rank: aiMatch.rank, 
+                  density: aiMatch.crowd_level, 
+                  statusClass: statusMap[aiMatch.crowd_level] || 'status-med',
+                  trend: aiMatch.trend_status
+                };
+              }
+              return { ...c, rank: 99 };
+            });
+
+            // 2. ENHANCE with Google Places API (New) - ดึงพิกัดที่เป๊ะที่สุดและ Rating
+            const enhanced = await Promise.all(ranked.map(async (c) => {
+              try {
+                const googleUrl = 'https://places.googleapis.com/v1/places:searchText';
+                const gRes = await fetch(googleUrl, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'X-Goog-Api-Key': import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
+                    'X-Goog-FieldMask': 'places.location,places.rating'
+                  },
+                  body: JSON.stringify({ 
+                    textQuery: `${c.name} ธรรมศาสตร์ รังสิต`, 
+                    maxResultCount: 1,
+                    locationBias: {
+                      circle: {
+                        center: { latitude: userLocation.lat, longitude: userLocation.lng },
+                        radius: 2000.0
+                      }
+                    }
+                  })
+                });
+                const gData = await gRes.json();
+                if (gData.places && gData.places.length > 0) {
+                  const p = gData.places[0];
+                  return {
+                    ...c,
+                    lat: p.location.latitude,
+                    lng: p.location.longitude,
+                    density: c.density // Just use original density
+                  };
+                }
+              } catch (e) { console.error('Google Enhance Error:', e); }
+              return c;
+            }));
+
+            setDisplayCanteens(enhanced.sort((a, b) => (a.rank || 99) - (b.rank || 99)));
+            if (data.gemini_summary) setAiSummary(data.gemini_summary);
+            if (data.recommenderEngine) setAiModel(data.recommenderEngine);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch AI recommendation:', error);
+      } finally {
+        setIsLoading(false)
+      }
     }, 600)
   }
 
@@ -229,6 +359,19 @@ const App: React.FC = () => {
             isLocationLoading={isLocationLoading}
             hasLocation={!!userLocation}
           />
+
+          {hasSearched && aiSummary && (
+            <div className="ai-summary-card animate-in">
+              <div className="ai-summary-header">
+                <div className="ai-badge">
+                  <FaMagic /> <span>AI Recommendation</span>
+                </div>
+                {aiModel && <span className="ai-model-tag">{aiModel}</span>}
+              </div>
+              <p className="ai-text">{aiSummary}</p>
+            </div>
+          )}
+
           <section className="results-section">
             <div className="results-header">
               <h2>โรงอาหารแนะนำทั้งหมด</h2>
@@ -240,7 +383,7 @@ const App: React.FC = () => {
                   <div className="loading-spinner"></div>
                   <p>กำลังโหลด...</p>
                 </div>
-              ) : displayCanteens.length > 0 ? (
+              ) : (hasSearched && displayCanteens.length > 0) ? (
                 displayCanteens.map(canteen => (
                   <CanteenCard 
                     key={canteen.id} 
@@ -300,17 +443,29 @@ const App: React.FC = () => {
                   <button className="nav-close-btn" onClick={() => { setDestination(null); setRouteInfo(null); }}>✕</button>
                 </div>
                 <div className="nav-steps-list">
-                {routeInfo.steps.map((step, i) => (
-                  <div key={i} className={`nav-step ${i === navStepIndex ? 'nav-step-active' : ''}`} style={{ display: i === navStepIndex ? 'flex' : 'none' }}>
-                    <div className="nav-step-icon">
-                      {i === 0 ? <FaMapMarkerAlt /> : i === routeInfo.steps.length - 1 ? <FaFlagCheckered /> : <FaArrowUp />}
+                {routeInfo.steps.map((step, i) => {
+                  if (i !== navStepIndex) return null;
+                  
+                  // Logic for Direction Icons
+                  let DirectionIcon = FaArrowUp;
+                  const m = step.maneuver?.toLowerCase() || '';
+                  if (m.includes('left')) DirectionIcon = FaArrowLeft;
+                  else if (m.includes('right')) DirectionIcon = FaArrowRight;
+                  else if (m.includes('straight')) DirectionIcon = FaArrowUp;
+                  else if (m.includes('merge') || m.includes('fork')) DirectionIcon = FaArrowUpRight;
+
+                  return (
+                    <div key={i} className="nav-step nav-step-active">
+                      <div className="nav-step-icon">
+                        {i === 0 ? <FaMapMarkerAlt /> : i === routeInfo.steps.length - 1 ? <FaFlagCheckered /> : <DirectionIcon />}
+                      </div>
+                      <div className="nav-step-body">
+                        <div className="nav-step-instruction" dangerouslySetInnerHTML={{ __html: step.instruction }} />
+                        <div className="nav-step-distance">{step.distance}</div>
+                      </div>
                     </div>
-                    <div className="nav-step-body">
-                      <div className="nav-step-instruction" dangerouslySetInnerHTML={{ __html: step.instruction }} />
-                      <div className="nav-step-distance">{step.distance}</div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div className="nav-controls">
                 <button 

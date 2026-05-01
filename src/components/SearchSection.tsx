@@ -51,24 +51,21 @@ const SearchSection: React.FC<SearchSectionProps> = ({
           className={`tab ${activeTab === 'range' ? 'active' : ''}`}
           onClick={() => setActiveTab('range')}
         >
-          กำหนดช่วงเวลา
+          ระบุเวลา
         </button>
       </div>
 
       <div className="search-controls-container animate-in">
         {activeTab === 'range' && (
-          <div className="time-range-group">
-            <div className="time-picker-wrapper">
-              <label>ตั้งแต่</label>
-              <select value={startTime} onChange={(e) => setStartTime(e.target.value)}>
+          <div className="time-range-group" style={{ justifyContent: 'center' }}>
+            <div className="time-picker-wrapper" style={{ width: '100%' }}>
+              <label>เวลาที่ต้องการ</label>
+              <select value={startTime} onChange={(e) => setStartTime(e.target.value)} style={{ width: '100%' }}>
                 {timeOptions.map(t => <option key={`start-${t}`} value={t}>{t}</option>)}
               </select>
-            </div>
-            <div className="time-picker-wrapper">
-              <label>ถึง</label>
-              <select value={endTime} onChange={(e) => setEndTime(e.target.value)}>
-                {timeOptions.map(t => <option key={`end-${t}`} value={t}>{t}</option>)}
-              </select>
+              <p style={{ fontSize: '0.7rem', color: '#888', marginTop: '6px', textAlign: 'center' }}>
+                * ระบบจะวิเคราะห์ข้อมูลล่วงหน้า 1 ชั่วโมงจากเวลาที่ระบุ
+              </p>
             </div>
           </div>
         )}

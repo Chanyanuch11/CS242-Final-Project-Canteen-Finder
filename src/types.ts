@@ -11,4 +11,6 @@ export interface Canteen {
   image?: string;
   lat?: number;
   lng?: number;
+  rank?: number;
+  trend?: string;
 }

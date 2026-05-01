@@ -1,0 +1,334 @@
+{
+  "routes": [
+    {
+      "legs": [
+        {
+          "distanceMeters": 1933,
+          "duration": "1551s",
+          "staticDuration": "1551s",
+          "polyline": {
+            "encodedPolyline": "ul{tAau_eR^??Sr@??VPA?iAnF?vDA@|LDXLZJHEf@H`ANh@T^TXSHGPDTFH[^HD@zAaCHJ`AeARWRU?uAPQCwC}AM@eJvCS@YGWOWCmJNKBCD?FNZzAnCJXuC~@"
+          },
+          "startLocation": {
+            "latLng": {
+              "latitude": 14.0719519,
+              "longitude": 100.6012899
+            }
+          },
+          "endLocation": {
+            "latLng": {
+              "latitude": 14.0758241,
+              "longitude": 100.5948274
+            }
+          },
+          "steps": [
+            {
+              "distanceMeters": 80,
+              "staticDuration": "56s",
+              "polyline": {
+                "encodedPolyline": "ul{tAau_eR^??Sr@??VPA"
+              },
+              "startLocation": {
+                "latLng": {
+                  "latitude": 14.0719519,
+                  "longitude": 100.6012899
+                }
+              },
+              "endLocation": {
+                "latLng": {
+                  "latitude": 14.071443499999999,
+                  "longitude": 100.601275
+                }
+              },
+              "navigationInstruction": {
+                "maneuver": "DEPART",
+                "instructions": "มุ่งไปทางทิศใต้"
+              },
+              "localizedValues": {
+                "distance": {
+                  "text": "80 ม."
+                },
+                "staticDuration": {
+                  "text": "1 นาที"
+                }
+              },
+              "travelMode": "WALK"
+            },
+            {
+              "distanceMeters": 40,
+              "staticDuration": "27s",
+              "polyline": {
+                "encodedPolyline": "oi{tA_u_eR?iA"
+              },
+              "startLocation": {
+                "latLng": {
+                  "latitude": 14.071443499999999,
+                  "longitude": 100.601275
+                }
+              },
+              "endLocation": {
+                "latLng": {
+                  "latitude": 14.071444399999999,
+                  "longitude": 100.60164619999999
+                }
+              },
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "เลี้ยวซ้าย ไปยัง ถ. ตลาดวิชา"
+              },
+              "localizedValues": {
+                "distance": {
+                  "text": "40 ม."
+                },
+                "staticDuration": {
+                  "text": "1 นาที"
+                }
+              },
+              "travelMode": "WALK"
+            },
+            {
+              "distanceMeters": 236,
+              "staticDuration": "188s",
+              "polyline": {
+                "encodedPolyline": "oi{tAiw_eRnF?vDA"
+              },
+              "startLocation": {
+                "latLng": {
+                  "latitude": 14.071444399999999,
+                  "longitude": 100.60164619999999
+                }
+              },
+              "endLocation": {
+                "latLng": {
+                  "latitude": 14.0693223,
+                  "longitude": 100.6016647
+                }
+              },
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "เลี้ยวขวา เข้าสู่ ถ. ตลาดวิชา"
+              },
+              "localizedValues": {
+                "distance": {
+                  "text": "0.2 กม."
+                },
+                "staticDuration": {
+                  "text": "3 นาที"
+                }
+              },
+              "travelMode": "WALK"
+            },
+            {
+              "distanceMeters": 280,
+              "staticDuration": "229s",
+              "polyline": {
+                "encodedPolyline": "g|ztAkw_eR@|LDXLZJH"
+              },
+              "startLocation": {
+                "latLng": {
+                  "latitude": 14.0693223,
+                  "longitude": 100.6016647
+                }
+              },
+              "endLocation": {
+                "latLng": {
+                  "latitude": 14.069152299999999,
+                  "longitude": 100.5991127
+                }
+              },
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "เลี้ยวขวา เข้าสู่ ถนน มิตรภาพ"
+              },
+              "localizedValues": {
+                "distance": {
+                  "text": "0.3 กม."
+                },
+                "staticDuration": {
+                  "text": "4 นาที"
+                }
+              },
+              "travelMode": "WALK"
+            },
+            {
+              "distanceMeters": 122,
+              "staticDuration": "99s",
+              "polyline": {
+                "encodedPolyline": "e{ztAmg_eREf@H`ANh@T^TX"
+              },
+              "startLocation": {
+                "latLng": {
+                  "latitude": 14.069152299999999,
+                  "longitude": 100.5991127
+                }
+              },
+              "endLocation": {
+                "latLng": {
+                  "latitude": 14.068833699999999,
+                  "longitude": 100.5980847
+                }
+              },
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "เลี้ยวขวา เพื่อวิ่งบน ถนน มิตรภาพ"
+              },
+              "localizedValues": {
+                "distance": {
+                  "text": "0.1 กม."
+                },
+                "staticDuration": {
+                  "text": "2 นาที"
+                }
+              },
+              "travelMode": "WALK"
+            },
+            {
+              "distanceMeters": 66,
+              "staticDuration": "55s",
+              "polyline": {
+                "encodedPolyline": "eyztA_a_eRSHGPDTFH[^"
+              },
+              "startLocation": {
+                "latLng": {
+                  "latitude": 14.068833699999999,
+                  "longitude": 100.5980847
+                }
+              },
+              "endLocation": {
+                "latLng": {
+                  "latitude": 14.0690354,
+                  "longitude": 100.5976244
+                }
+              },
+              "navigationInstruction": {
+                "maneuver": "ROUNDABOUT_LEFT",
+                "instructions": "เมื่อถึงวงเวียน ใช้ทางออก ที่ 1 ไปยัง ถนน เอเชียนเกมส์"
+              },
+              "localizedValues": {
+                "distance": {
+                  "text": "66 ม."
+                },
+                "staticDuration": {
+                  "text": "1 นาที"
+                }
+              },
+              "travelMode": "WALK"
+            },
+            {
+              "distanceMeters": 7,
+              "staticDuration": "6s",
+              "polyline": {
+                "encodedPolyline": "ozztAc~~dRHD"
+              },
+              "startLocation": {
+                "latLng": {
+                  "latitude": 14.0690354,
+                  "longitude": 100.5976244
+                }
+              },
+              "endLocation": {
+                "latLng": {
+                  "latitude": 14.068986899999999,
+                  "longitude": 100.59758699999999
+                }
+              },
+              "navigationInstruction": {
+                "maneuver": "TURN_LEFT",
+                "instructions": "เลี้ยวซ้าย"
+              },
+              "localizedValues": {
+                "distance": {
+                  "text": "7 ม."
+                },
+                "staticDuration": {
+                  "text": "1 นาที"
+                }
+              },
+              "travelMode": "WALK"
+            },
+            {
+              "distanceMeters": 1011,
+              "staticDuration": "809s",
+              "polyline": {
+                "encodedPolyline": "ezztA}}~dR@zAaCHJ`AeARWRU?uAPQCwC}AM@eJvCS@YGWOWCmJNKBCD?FNZzAnCJX"
+              },
+              "startLocation": {
+                "latLng": {
+                  "latitude": 14.068986899999999,
+                  "longitude": 100.59758699999999
+                }
+              },
+              "endLocation": {
+                "latLng": {
+                  "latitude": 14.075068300000002,
+                  "longitude": 100.5951455
+                }
+              },
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "เลี้ยวขวา"
+              },
+              "localizedValues": {
+                "distance": {
+                  "text": "1.0 กม."
+                },
+                "staticDuration": {
+                  "text": "13 นาที"
+                }
+              },
+              "travelMode": "WALK"
+            },
+            {
+              "distanceMeters": 91,
+              "staticDuration": "82s",
+              "polyline": {
+                "encodedPolyline": "e`|tAun~dRuC~@"
+              },
+              "startLocation": {
+                "latLng": {
+                  "latitude": 14.075068300000002,
+                  "longitude": 100.5951455
+                }
+              },
+              "endLocation": {
+                "latLng": {
+                  "latitude": 14.0758241,
+                  "longitude": 100.5948274
+                }
+              },
+              "navigationInstruction": {
+                "maneuver": "TURN_RIGHT",
+                "instructions": "เลี้ยวขวา\nถนนที่จำกัดการใช้งาน"
+              },
+              "localizedValues": {
+                "distance": {
+                  "text": "91 ม."
+                },
+                "staticDuration": {
+                  "text": "1 นาที"
+                }
+              },
+              "travelMode": "WALK"
+            }
+          ],
+          "localizedValues": {
+            "distance": {
+              "text": "1.9 กม."
+            },
+            "duration": {
+              "text": "26 นาที"
+            },
+            "staticDuration": {
+              "text": "26 นาที"
+            }
+          }
+        }
+      ],
+      "distanceMeters": 1933,
+      "duration": "1551s",
+      "polyline": {
+        "encodedPolyline": "ul{tAau_eR^??Sr@??VPA?iAnF?vDA@|LDXLZJHEf@H`ANh@T^TXSHGPDTFH[^HD@zAaCHJ`AeARWRU?uAPQCwC}AM@eJvCS@YGWOWCmJNKBCD?FNZzAnCJXuC~@"
+      }
+    }
+  ]
+}
