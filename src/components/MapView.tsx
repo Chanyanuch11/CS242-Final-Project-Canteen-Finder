@@ -23,15 +23,27 @@ const userLocationIcon = L.divIcon({
 });
 
 const canteenIcon = L.divIcon({
-  className: 'canteen-marker',
+  className: 'canteen-marker-container',
   html: `
-    <svg width="30" height="42" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0ZM15 20.25C12.1005 20.25 9.75 17.8995 9.75 15C9.75 12.1005 12.1005 9.75 15 9.75C17.8995 9.75 20.25 12.1005 20.25 15C20.25 17.8995 17.8995 20.25 15 20.25Z" fill="#f06292"/>
-      <path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0ZM15 20.25C12.1005 20.25 9.75 17.8995 9.75 15C9.75 12.1005 12.1005 9.75 15 9.75C17.8995 9.75 20.25 12.1005 20.25 15C20.25 17.8995 17.8995 20.25 15 20.25Z" stroke="white" stroke-width="2"/>
-    </svg>
+    <div style="
+      width: 30px; 
+      height: 42px; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center;
+      margin: 0;
+      padding: 0;
+      transform: translate(0, 0);
+    ">
+      <svg width="30" height="42" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+        <path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0ZM15 20.25C12.1005 20.25 9.75 17.8995 9.75 15C9.75 12.1005 12.1005 9.75 15 9.75C17.8995 9.75 20.25 12.1005 20.25 15C20.25 17.8995 17.8995 20.25 15 20.25Z" fill="#f06292"/>
+        <path d="M15 0C6.71573 0 0 6.71573 0 15C0 26.25 15 42 15 42C15 42 30 26.25 30 15C30 6.71573 23.2843 0 15 0ZM15 20.25C12.1005 20.25 9.75 17.8995 9.75 15C9.75 12.1005 12.1005 9.75 15 9.75C17.8995 9.75 20.25 12.1005 20.25 15C20.25 17.8995 17.8995 20.25 15 20.25Z" stroke="white" stroke-width="2"/>
+      </svg>
+    </div>
   `,
   iconSize: [30, 42],
-  iconAnchor: [15, 42] // Anchor exactly at the bottom tip
+  iconAnchor: [15, 42],
+  popupAnchor: [0, -42] // ให้ Popup ขึ้นไปเหนือหัวหมุดพอดี
 });
 
 declare const google: any;
